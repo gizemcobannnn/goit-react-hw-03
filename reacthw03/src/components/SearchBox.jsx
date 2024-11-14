@@ -1,17 +1,24 @@
-import {useState} from 'react'
+import {useState} from 'react';
+import PropTypes from 'prop-types';
 
-const SearchBox = () => {
+const SearchBox = ({onSearch}) => {
 
-    const [input,searchInput]=useState("");
+    const [input,setInput]=useState("");
     const findContact=(event)=>{
-        searchInput(event.target.value);
+        const value = event.target.value;
+        setInput(value);
+        onSearch(value);
     }
   return (
     <div className='SearchBox'>
-        <p>Find contacts by name</p>
-        <input type="text" className="search-input" />
+        <p style={{marginBottom:0}}>Find contacts by name</p>
+        <input type="text" className="search-input" value={input} onChange={findContact} />
     </div>
   )
 }
+
+SearchBox.propTypes={
+    onSearch: PropTypes.func.isRequired
+};
 
 export default SearchBox
