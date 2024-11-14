@@ -1,6 +1,11 @@
-import React from 'react'
+import {useState} from 'react'
 
 const SearchBox = () => {
+
+    const [input,searchInput]=useState("");
+    const findContact=(event)=>{
+        searchInput(event.target.value);
+    }
   return (
     <div className='SearchBox'>
         <p>Find contacts by name</p>
