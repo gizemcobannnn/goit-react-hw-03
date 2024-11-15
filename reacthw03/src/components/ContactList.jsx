@@ -1,30 +1,53 @@
-import Contact from './Contact'
+import { useState, useEffect } from "react";
+import Contact from "./Contact";
+import PropTypes from "prop-types";
 
-const ContactList = (searchTerm) => {
-    searchTerm
-    const contacts = [
-        {id: 'id-1', name: 'Rosie Simpson', number: '459-12-56'},
-        {id: 'id-2', name: 'Hermione Kline', number: '443-89-12'},
-        {id: 'id-3', name: 'Eden Clements', number: '645-17-79'},
-        {id: 'id-4', name: 'Annie Copeland', number: '227-91-26'},
-      ];
-      const filteredContacts = contacts.filter(contact => 
-        contact.name.toLowerCase().includes(
-          typeof searchTerm === "string" ? searchTerm.toLowerCase() : ""
-        )
+const ContactList = ({ contacts: initialContacts, searchTerm }) => {
+  const [contactsList, setContactsList] = useState(initialContacts); // `contacts` yerine farklı bir isim
+
+  function handleDelete(id) {
+    const updatedContacts = contactsList.filter((contact) => contact.id !== id);
+    setContactsList(updatedContacts); // State'i güncelliyoruz
+  }
+
+  useEffect(() => {
+    // Arama filtresi her değiştiğinde tetiklenir
+    if (searchTerm) {
+      const filteredContacts = initialContacts.filter((contact) =>
+        contact.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
+      setContactsList(filteredContacts);
+    } else {
+      setContactsList(initialContacts); // Arama terimi boşsa tüm listeyi göster
+    }
+  }, [searchTerm, initialContacts]); // `searchTerm` veya `initialContacts` değişirse çalışır
 
-      return (
+  return (
     <div className="ContactList">
-      {filteredContacts.length > 0 ? (
-        filteredContacts.map(contact => (
-          <Contact key={contact.id} contact={contact} /> // Her bir contact bileşenine filtrelenen veriyi gönderiyoruz
+      {contactsList.length > 0 ? (
+        contactsList.map((contact) => (
+          <Contact
+            key={contact.id}
+            contact={contact}
+            onDelete={handleDelete} // Her bir contact bileşenine `onDelete` gönderiliyor
+          />
         ))
       ) : (
         <p>No contacts found</p>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default ContactList
+ContactList.propTypes = {
+  contacts: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      number: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  searchTerm: PropTypes.string.isRequired,
+};
+
+export default ContactList;

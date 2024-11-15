@@ -1,14 +1,15 @@
-import {useEffect, useId} from 'react'
+import {useEffect, useId, useState} from 'react'
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from 'yup';
+import PropTypes from 'prop-types';
 
 
-const ContactForm = () => {
-    const initialValues = {
-        username: "",
-        phone: ""
-      };
-    
+const ContactForm = ({onAddContact}) => {
+    const [initialValues,setInitialValues]=useState({
+      username: "",
+      phone: ""
+    });
+   
         const nameFieldId = useId();
         const phoneFieldId = useId();
 
@@ -22,9 +23,17 @@ const ContactForm = () => {
               .min(9, 'Phone number must be at least 10 digits')
           });
         const handleSubmit = (values, actions) => {
+          const newContact = {
+            id: Date.now().toString(),
+            name: values.username, // Doğru şekilde 'name' alanına eşleştiriyoruz
+            phone: values.phone,
+          };
+          values= newContact;
           console.log(values);
           setLocalStorage(values);
+          onAddContact(values);
           actions.resetForm();
+
         };
 
         const setLocalStorage=(value)=>{
@@ -36,10 +45,13 @@ const ContactForm = () => {
 
         }
 
+
         useEffect(() => {
             const storedData = getLocalStorage();
-            initialValues.username = storedData.username;
-            initialValues.phone = storedData.phone;
+            setInitialValues({
+              username:storedData.username||"",
+              phone:storedData.phone||""
+            }); 
           }, []);
 
   return (
@@ -48,6 +60,7 @@ const ContactForm = () => {
             initialValues={initialValues}
             onSubmit={handleSubmit}
             validationSchema={FeedbackSchema}
+        
             >
                 <Form>
                 <div style={{display:"flex",flexDirection:"column" ,justifyContent:"flex-start", alignItems:"flex-start"}}>
@@ -62,11 +75,16 @@ const ContactForm = () => {
                     <ErrorMessage name="phone" component="span" />
                 </div>
 
-                <button type="submit" style={{border:"2px solid grey ",marginTop:"10px"}}>Add Contact</button>
+                <button type="submit"  style={{border:"2px solid grey ",marginTop:"10px"}}>Add Contact</button>
                 </Form>
             </Formik>
 
     </div>
   )
 }
+
+ContactForm.propTypes={
+  onAddContact:PropTypes.func.isRequired
+};
+
 export default ContactForm;
